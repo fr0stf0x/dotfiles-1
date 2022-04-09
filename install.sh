@@ -86,6 +86,38 @@ function install_macos {
     curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   fi
 }
+function install_macos_min {
+  if [[ $OSTYPE != darwin* ]]; then
+    return
+  fi
+  echo "MacOS detected"
+  xcode-select --install
+
+  if [ "$(is_installed fzf)" == "0" ]; then
+    echo "Installing fzf"
+    brew install fzf
+    /opt/homebrew/opt/fzf/install
+  fi
+
+  if [ "$(is_installed tmux)" == "0" ]; then
+    echo "Installing tmux"
+    brew install tmux
+    echo "Installing reattach-to-user-namespace"
+    brew install reattach-to-user-namespace
+    echo "Installing tmux-plugin-manager"
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+  fi
+
+  if [ "$(is_installed nvim)" == "0" ]; then
+    echo "Install neovim"
+    brew install neovim
+    if [ "$(is_installed pip3)" == "1" ]; then
+      pip3 install neovim --upgrade
+    fi
+
+    curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  fi
+}
 
 function backup {
   echo "Backing up dotfiles"
@@ -104,7 +136,7 @@ function backup {
 function link_dotfiles {
   echo "Linking dotfiles"
 
-  ln -s $(pwd)/zshrc ~/.zshrc
+  ln -s $(pwd)/zshrc_2 ~/.zshrc
   ln -s $(pwd)/tmux.conf ~/.tmux.conf
   ln -s $(pwd)/vim ~/.vim
   ln -s $(pwd)/vimrc ~/.vimrc
@@ -134,6 +166,14 @@ while test $# -gt 0; do
       ;;
     --macos)
       install_macos
+      backup
+      link_dotfiles
+      zsh
+      source ~/.zshrc
+      exit
+      ;;
+    --macos-min)
+      install_macos_min
       backup
       link_dotfiles
       zsh
