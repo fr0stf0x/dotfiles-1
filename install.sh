@@ -98,6 +98,11 @@ function install_macos_min {
     brew install fzf
     /opt/homebrew/opt/fzf/install
   fi
+  
+  if [ "$(is_installed ag)" == "0" ]; then
+    echo "Installing The silver searcher"
+    brew install the_silver_searcher
+  fi
 
   if [ "$(is_installed tmux)" == "0" ]; then
     echo "Installing tmux"
@@ -121,7 +126,7 @@ function install_macos_min {
 
 function backup {
   echo "Backing up dotfiles"
-  local current_date=$(date +%s)
+  local current_date=$(date +%y%m%d-%H-%M)
   local backup_dir=dotfiles_$current_date
 
   mkdir ~/$backup_dir
